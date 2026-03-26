@@ -1,0 +1,14 @@
+{
+  "name": "proxy-nhl",
+  "version": "1.0.0",
+  "description": "Proxy NHL pour contourner le CORS et accéder à l'API NHL",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "node-fetch": "^3.3.2"
+  }
+}
