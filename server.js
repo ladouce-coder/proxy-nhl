@@ -1,22 +1,28 @@
 import express from "express";
 import fetch from "node-fetch";
+import https from "https";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Autoriser ton site web à accéder au proxy
+// Agent HTTPS spécial pour Render (corrige ENOTFOUND)
+const agent = new https.Agent({
+  keepAlive: true,
+  rejectUnauthorized: false
+});
+
+// CORS
 app.use((req, res, next) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
   next();
 });
 
-// Proxy NHL (toutes les routes /nhl/... passent ici)
+// Proxy NHL
 app.get("/nhl/*", async (req, res) => {
   try {
     const nhlUrl = "https://statsapi.web.nhl.com/" + req.params[0];
-    console.log("→ NHL:", nhlUrl);
 
-    const response = await fetch(nhlUrl);
+    const response = await fetch(nhlUrl, { agent });
     const data = await response.json();
 
     res.json(data);
@@ -28,13 +34,13 @@ app.get("/nhl/*", async (req, res) => {
   }
 });
 
-// Proxy pour les photos NHL
+// Photos NHL
 app.get("/photo/:id", async (req, res) => {
   const id = req.params.id;
   const url = `https://cms.nhl.bamgrid.com/images/headshots/current/168x168/${id}.jpg`;
 
   try {
-    const response = await fetch(url);
+    const response = await fetch(url, { agent });
     const buffer = await response.arrayBuffer();
 
     res.setHeader("Content-Type", "image/jpeg");
